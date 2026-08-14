@@ -1,0 +1,83 @@
+skill_id,synonym
+sql,sql
+sql,mysql
+sql,postgresql
+sql,postgres
+sql,t-sql
+sql,pl/sql
+python,python
+python,pandas
+python,numpy
+excel,excel
+excel,microsoft excel
+excel,advanced excel
+excel,vlookup
+excel,pivot tables
+power_bi,power bi
+power_bi,powerbi
+tableau,tableau
+data_cleaning,data cleaning
+data_cleaning,data cleansing
+data_cleaning,data wrangling
+data_cleaning,data quality
+etl,etl
+etl,extract transform load
+etl,data pipeline
+etl,data pipelines
+sql_server,sql server
+sql_server,mssql
+sql_server,ssis
+sql_server,ssrs
+data_modelling,data modelling
+data_modelling,data modeling
+data_modelling,dimensional modelling
+data_modelling,star schema
+dashboarding,dashboard
+dashboarding,dashboards
+dashboarding,dashboarding
+dashboarding,report writing
+dashboarding,management reporting
+dashboarding,business intelligence reporting
+stakeholder_comms,stakeholder management
+stakeholder_comms,stakeholder communication
+stakeholder_comms,cross-functional
+cloud_aws,aws
+cloud_aws,amazon web services
+cloud_azure,azure
+cloud_azure,microsoft azure
+cloud_gcp,gcp
+cloud_gcp,google cloud
+statistics,statistics
+statistics,statistical analysis
+statistics,regression
+statistics,hypothesis testing
+r_lang,r programming
+r_lang,r language
+data_warehousing,data warehouse
+data_warehousing,data warehousing
+data_warehousing,snowflake
+data_warehousing,redshift
+data_warehousing,bigquery
+communication,communication skills
+communication,presentation skills
+containerization,docker
+containerization,kubernetes
+containerization,k8s
+containerization,containerisation
+containerization,containerization
+big_data_processing,spark
+big_data_processing,apache spark
+big_data_processing,pyspark
+big_data_processing,hadoop
+big_data_processing,kafka
+big_data_processing,apache kafka
+databricks,databricks
+orchestration,airflow
+orchestration,apache airflow
+orchestration,dbt
+version_control,git
+version_control,github
+version_control,gitlab
+ci_cd,ci/cd
+ci_cd,continuous integration
+ci_cd,jenkins
