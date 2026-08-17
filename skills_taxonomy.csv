@@ -81,3 +81,22 @@ version_control,gitlab
 ci_cd,ci/cd
 ci_cd,continuous integration
 ci_cd,jenkins
+requirements_gathering,requirements gathering
+requirements_gathering,business requirements
+requirements_gathering,brd
+requirements_gathering,functional specification
+requirements_gathering,user stories
+process_mapping,process mapping
+process_mapping,business process
+process_mapping,process improvement
+process_mapping,gap analysis
+agile_methodology,agile
+agile_methodology,scrum
+agile_methodology,kanban
+agile_methodology,sprint planning
+change_management,change management
+business_case,business case
+business_analysis_tools,jira
+business_analysis_tools,confluence
+business_analysis_tools,visio
+business_analysis_tools,uml
