@@ -101,6 +101,11 @@ def fetch_postings(query: str, max_pages: int = 3) -> list[dict]:
 def write_csv(rows: list[dict], out_path: str) -> None:
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     file_exists = os.path.exists(out_path)
+    with open(out_path, "a", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
+        if not file_exists:
+            writer.writeheader()
+        writer.writerows(rows)
 
 
 if __name__ == "__main__":
