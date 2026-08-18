@@ -103,6 +103,12 @@ def log_results(
     same log can later answer "how has X skill's share changed over
     time for role Y" without needing a database — just filter the CSV.
 
+    Each run gets a run_id (a precise timestamp, to the second) so that
+    if the same label is run more than once on the same day, later
+    tools can reliably tell which rows belong to which run — grouping
+    by run_date alone isn't enough once there's more than one run per
+    day for a label.
+
     This is deliberately NOT the full canonical data model described in
     docs/future-platform-architecture.md — it's the small, cheap step
     worth doing at the project's current scale. See that doc for the
@@ -110,9 +116,11 @@ def log_results(
     """
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
     file_exists = os.path.exists(log_path)
-    run_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    now = datetime.now(timezone.utc)
+    run_date = now.strftime("%Y-%m-%d")
+    run_id = now.strftime("%Y-%m-%dT%H:%M:%S")
 
-    fieldnames = ["run_date", "label", "total_postings", "skill", "count", "pct"]
+    fieldnames = ["run_date", "run_id", "label", "total_postings", "skill", "count", "pct"]
     with open(log_path, "a", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         if not file_exists:
@@ -122,6 +130,7 @@ def log_results(
             writer.writerow(
                 {
                     "run_date": run_date,
+                    "run_id": run_id,
                     "label": label,
                     "total_postings": total_postings,
                     "skill": skill,
