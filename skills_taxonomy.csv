@@ -100,3 +100,127 @@ business_analysis_tools,jira
 business_analysis_tools,confluence
 business_analysis_tools,visio
 business_analysis_tools,uml
+accounting_gaap,gaap
+accounting_gaap,ifrs
+accounting_reconciliation,reconciliation
+accounting_reconciliation,bank reconciliation
+accounting_reconciliation,account reconciliation
+accounting_reporting,financial reporting
+accounting_reporting,management accounts
+accounting_reporting,financial statements
+tax_compliance,tax compliance
+tax_compliance,vat
+tax_compliance,income tax
+accounting_software,pastel
+accounting_software,sage
+accounting_software,quickbooks
+accounting_software,sap fico
+accounting_software,caseware
+audit,audit
+audit,internal audit
+audit,external audit
+budgeting,budgeting
+budgeting,forecasting
+budgeting,variance analysis
+accounting_qualification,saica
+accounting_qualification,ca(sa)
+accounting_qualification,saipa
+clinical_care,patient care
+clinical_care,clinical assessment
+clinical_care,vital signs
+nursing_qualification,sanc
+nursing_qualification,diploma in nursing
+nursing_qualification,bachelor of nursing
+medication_administration,medication administration
+medication_administration,drug administration
+infection_control,infection control
+infection_control,ppe
+patient_documentation,patient records
+patient_documentation,clinical documentation
+emergency_care,emergency care
+emergency_care,triage
+emergency_care,resuscitation
+healthcare_compliance,hpcsa
+healthcare_compliance,healthcare regulations
+civil_design,structural design
+civil_design,civil design
+civil_design,site design
+civil_engineering_software,autocad
+civil_engineering_software,civil 3d
+civil_engineering_software,revit
+civil_engineering_software,staad pro
+project_management_general,project management
+project_management_construction,construction management
+project_management_construction,site supervision
+engineering_standards,sans
+engineering_standards,building regulations
+engineering_standards,national building regulations
+quantity_surveying,quantity surveying
+quantity_surveying,boq
+quantity_surveying,bill of quantities
+civil_qualification,pr eng
+civil_qualification,ecsa
+site_management,site management
+site_management,site inspection
+digital_marketing,digital marketing
+digital_marketing,seo
+digital_marketing,sem
+digital_marketing,ppc
+social_media_marketing,social media marketing
+social_media_marketing,social media management
+content_marketing,content marketing
+content_marketing,content strategy
+content_marketing,copywriting
+marketing_analytics,google analytics
+marketing_analytics,campaign analytics
+marketing_analytics,marketing roi
+email_marketing,email marketing
+email_marketing,mailchimp
+brand_management,brand management
+brand_management,brand strategy
+marketing_tools,hubspot
+marketing_tools,meta ads
+marketing_tools,google ads
+crm_tools,crm
+crm_tools,salesforce
+crm_tools,hubspot crm
+software_languages,java
+software_languages,c#
+software_languages,c++
+software_languages,javascript
+software_languages,typescript
+software_languages,go
+software_languages,ruby
+software_frameworks,react
+software_frameworks,angular
+software_frameworks,vue
+software_frameworks,node.js
+software_frameworks,django
+software_frameworks,flask
+software_frameworks,spring boot
+software_frameworks,.net
+software_testing,unit testing
+software_testing,test-driven development
+software_testing,tdd
+software_testing,selenium
+software_architecture,microservices
+software_architecture,rest api
+software_architecture,api design
+software_devops,devops
+software_devops,cicd
+software_devops,terraform
+mobile_development,ios development
+mobile_development,android development
+mobile_development,react native
+mobile_development,flutter
+machine_learning,machine learning
+machine_learning,scikit-learn
+machine_learning,tensorflow
+machine_learning,pytorch
+data_science_stats,predictive modelling
+data_science_stats,feature engineering
+data_science_stats,model deployment
+nlp,natural language processing
+nlp,nlp
+computer_vision,computer vision
+computer_vision,image recognition
