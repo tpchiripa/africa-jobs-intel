@@ -1,21 +1,36 @@
 # africa-jobs-intel
 
-African job-market intelligence — extracting skills-demand signals from job postings, starting with South Africa's data/tech job market.
+**Live dashboard: [africa-jobs-intel.onrender.com](https://africa-jobs-intel.onrender.com)**
+
+African job-market intelligence — extracting skills-demand signals from job postings, starting with South Africa's data/tech job market. What began as manually skimming job adverts for product ideas turned into a validated pipeline covering 9 roles across 6 industries, and a live dashboard showing what employers are actually asking for, with direct links to apply.
+
+## What it does
+
+For each tracked role (Data Analyst, Data Engineer, Data Scientist, Software Engineer, Business Analyst, Accountant, Registered Nurse, Civil Engineer, Marketing Specialist), the pipeline:
+1. Pulls real job postings from public sources
+2. Matches posting text against a hand-built, validated skill taxonomy
+3. Reports what share of postings mention each skill — with the raw count, not just a percentage
+4. Publishes it all through a live dashboard: single-role skill breakdowns, side-by-side role comparison with common/differentiator analysis, a market snapshot, skill search, and direct links to the real postings
+
+Every number distinguishes **observation** (what employers wrote) from **interpretation** — the dashboard's "About this data" section explains the methodology and limitations in full.
 
 ## How it fits together
 
-- **`scrapers/fetch_adzuna.py`** — pulls postings from the [Adzuna API](https://developer.adzuna.com/) (covers South Africa) and writes them to `data/raw/*.csv`. Primary skill-signal source — Adzuna returns a real (if truncated to ~500 chars) description snippet.
-- **`scrapers/fetch_careers24.py`** — scrapes Careers24.com listing pages (no public API exists). **Scoped to posting-volume/frequency tracking only** — listing cards contain title/location/date/company but no description text, so skill matches against this source are unreliable. Not fed into skill-frequency conclusions.
-- **`scrapers/fetch_fuzu.py`** — pulls Kenya postings from Fuzu.com's JSON-LD structured-data block (title + URL only). Fuzu is a JavaScript-rendered React site, so a plain HTTP request can't reach the actual job-card HTML. **Scoped to volume tracking only**, same as Careers24, and thinner still (no company/location/description at all). BrighterMonday was tried first but its search-results URLs are explicitly disallowed in robots.txt — skipped rather than worked around.
+### Data pipeline
+- **`scrapers/fetch_adzuna.py`** — pulls postings from the [Adzuna API](https://developer.adzuna.com/) (South Africa). Primary skill-signal source — returns a real (if truncated to ~500 chars) description snippet.
+- **`scrapers/fetch_careers24.py`** / **`scrapers/fetch_fuzu.py`** — secondary sources, both honestly scoped to posting-volume tracking only (neither exposes enough description text for reliable skill matching — see their docstrings for why).
 - **`data/raw/manual_template.csv`** — same CSV schema, for sources without an API where postings are collected by hand.
-- **`analysis/skill_extraction.py`** — reads any CSV in `data/raw/` matching the schema, regardless of source, matches against `skills_taxonomy.csv`, prints skill frequency, and appends results to `data/skill_demand_log.csv` (see below).
-- **`skills_taxonomy.csv`** — flat synonym mapping (e.g. "Power BI" / "PowerBI" / "power-bi" → `power_bi`). Extend this as new terms show up in postings.
-- **`data/skill_demand_log.csv`** — persistent, append-only log of every analysis run (date, role label, total postings, skill, count, %). This is what makes trend-over-time analysis possible without a database — each run adds dated rows rather than overwriting the last run's output.
-- **`docs/future-platform-architecture.md`** — a full "Africa Labour Market Intelligence Platform" architecture spec (multi-industry, canonical data model, dedup, API, ML roadmap, etc.), saved for reference. **Not current scope** — the project is deliberately staying at its current CSV-based, tech/data-focused, single-country scale until that scope is actually warranted. See the doc for the reasoning.
+- **`skills_taxonomy.csv`** — flat synonym mapping (e.g. "Power BI" / "PowerBI" / "power-bi" → `power_bi`), spanning Technology, Finance, Healthcare, Engineering, and Marketing. Built and validated incrementally — see Status below for how a couple of real bugs got caught and fixed along the way.
+- **`analysis/skill_extraction.py`** — matches postings against the taxonomy, prints a report, and appends results to two persistent logs: `data/skill_demand_log.csv` (skill percentages) and `data/postings_index.csv` (title/company/location/URL for direct application links — deliberately excludes full description text so it stays small and safe to commit, unlike `data/raw/*.csv` which is gitignored as disposable working data).
+- **`analysis/weekly_report.py`** — generates a dated markdown report from the log.
 
-The point of the shared CSV schema: the analysis layer never needs to know or care whether a posting came from an API call or was pasted in by hand. New sources just need to output the same columns.
+### Dashboard (live at the link above)
+- **`api/`** — FastAPI backend. `data_access.py` is the tested data layer (pure Python, no FastAPI dependency); `main.py` is a thin routing layer on top, and also serves the frontend as static files.
+- **`static/`** — the frontend itself: single-role view, compare mode with a common/differentiator summary, a market snapshot, skill search, and a full methodology section. No frontend framework — plain HTML/CSS/JS, deployed as one service with the API.
+- **`data/role_industry_map.csv`** — maps each role label to a display name and industry for the dashboard's grouping.
+- **`docs/future-platform-architecture.md`** — a full "Africa Labour Market Intelligence Platform" architecture spec (multi-industry, canonical data model, CV matching, predictive ML, etc.), saved for reference. **Not current scope.**
 
-## Setup
+## Setup (local development)
 
 python -m venv venv
 venv\Scripts\activate # Windows
@@ -25,36 +40,44 @@ copy .env.example .env # then fill in your Adzuna credentials
 
 ## Usage
 
-Fetch postings:
+Fetch postings and update the skill/postings logs:
 
 python scrapers/fetch_adzuna.py "data analyst"
-python scrapers/fetch_careers24.py "data analyst" 1
-python scrapers/fetch_fuzu.py "data analyst"
-
-Analyze skill frequency (single file or whole folder) — also logs results to `data/skill_demand_log.csv`:
-
 python analysis/skill_extraction.py data/raw/data_analyst.csv
-python analysis/skill_extraction.py data/raw/
 
+
+Generate a markdown report:
+
+python analysis/weekly_report.py
+
+
+Run the dashboard locally:
+
+uvicorn api.main:app --reload
+
+Then open http://127.0.0.1:8000.
+
+## Deployment
+
+Deployed on [Render](https://render.com) (free tier) as a single service — see `DEPLOY.md` for the full setup. Render auto-redeploys on every push, so updating the live data is just: fetch → run skill_extraction → commit → push.
+
+Known limitation: the free tier spins down after ~15 minutes idle and takes 10-30 seconds to wake on the next visit.
 
 ## Status
 
-Core validation complete: Adzuna pipeline confirmed working and reproducible across two roles (Data Analyst vs Data Engineer, South Africa) with clearly differentiated, credible skill signal — ETL/cloud/Python/big-data skew Data Engineer, dashboarding/Power BI skew Data Analyst. Careers24 and Fuzu added as secondary sources, both honestly scoped to volume tracking only. Results now persist across runs via `data/skill_demand_log.csv` instead of disappearing from the terminal. A larger multi-industry platform architecture was proposed and deliberately deferred — see `docs/future-platform-architecture.md`.
+**Live, v1.** Core validation complete across 9 South African roles spanning 5 industries, each with a distinct, credible skill profile backed by real posting data — from Data Engineer's ETL/cloud-led profile to Accountant's reporting/tax/audit-led one. Two real bugs were caught and fixed during development rather than shipped silently: a Registered Nurse self-match artifact (the search term itself was accidentally a taxonomy synonym, producing a meaningless 100%) and a "latest run" detection bug that could silently merge two different runs' data on the same day (fixed by adding precise run timestamps). The dashboard adds direct application links, a compare-mode common/differentiator analysis, and a full methodology section distinguishing observation from interpretation.
 
 ## Roadmap
 
-- [x] South Africa: validate signal via Adzuna API pull (Data Analyst, Data Engineer roles)
-- [x] Expand taxonomy with containerization/big-data/orchestration terms, validate differentiation holds
-- [x] Add Careers24 as a second source (scoped to volume tracking, not skill signal)
-- [x] Add Fuzu (Kenya) as a third source (scoped to volume tracking — JS-rendered site, title+URL only)
-- [x] Persistent results log so skill-frequency data survives between runs (`data/skill_demand_log.csv`)
+- [x] South Africa: validate signal via Adzuna API pull, multiple roles
+- [x] Expand taxonomy across 5 industries (Technology, Finance, Healthcare, Engineering, Marketing)
+- [x] Add Careers24 and Fuzu as honestly-scoped secondary (volume-only) sources
+- [x] Persistent, run-id-tracked results log
+- [x] Weekly aggregation report
+- [x] FastAPI backend + dashboard frontend, deployed live on Render
+- [x] Direct job application links, sample-size transparency labels, methodology section
 - [ ] Nigeria: manual CSV collection from Jobberman
-- [ ] Add retry/backoff handling for transient API errors (hit a 503 from Adzuna once)
-- [ ] Consider headless-browser rendering (Selenium/Playwright) if Fuzu's full descriptions become worth the added complexity
-- [ ] Weekly aggregation report built on top of `skill_demand_log.csv`
-- [ ] Practice-scenario generator built on top of validated skill clusters
+- [ ] Location breakdown per role (needs city-name normalization)
+- [ ] Skill categorization (Technical / Tools / Cloud / Soft Skills groupings)
+- [ ] Retry/backoff handling for transient API errors
 - [ ] Revisit `docs/future-platform-architecture.md` once/if the project outgrows its current scale
-
-
-
-
