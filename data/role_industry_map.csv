@@ -1,0 +1,10 @@
+label,display_name,industry
+data_analyst,Data Analyst,Technology
+data_engineer,Data Engineer,Technology
+data_scientist,Data Scientist,Technology
+software_engineer,Software Engineer,Technology
+business_analyst,Business Analyst,Business
+accountant,Accountant,Finance
+registered_nurse,Registered Nurse,Healthcare
+civil_engineer,Civil Engineer,Engineering
+marketing_specialist,Marketing Specialist,Marketing

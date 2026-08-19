@@ -4,10 +4,6 @@ from fetch_adzuna.py or were pasted in by hand using manual_template.csv —
 same schema, same result), matches posting descriptions against
 skills_taxonomy.csv, and prints/writes skill frequency counts.
 
-Also appends each run's results to data/skill_demand_log.csv so
-results persist across runs and machines instead of vanishing when
-the terminal closes — see log_results() below for details.
-
 Usage:
     python analysis/skill_extraction.py data/raw/data_analyst.csv
     python analysis/skill_extraction.py data/raw/          # all CSVs in folder
@@ -39,6 +35,9 @@ def compile_patterns(synonym_to_skill: dict[str, str]) -> dict[str, re.Pattern]:
     """
     Compiles a word-boundary regex per synonym so "reporting" doesn't
     match inside "report", "sql" doesn't match inside a longer token, etc.
+    \\b works fine for space/punctuation-bounded terms like "power bi"
+    and "t-sql" too, since \\b anchors on word-character transitions
+    at the start/end of the whole synonym string.
     """
     return {
         synonym: re.compile(r"\b" + re.escape(synonym) + r"\b")
@@ -95,8 +94,9 @@ def log_results(
     skill_counts: Counter,
     total_postings: int,
     label: str,
+    run_id: str | None = None,
     log_path: str = "data/skill_demand_log.csv",
-) -> None:
+) -> str:
     """
     Appends this run's results to a persistent log so they aren't lost
     the moment the terminal closes. One row per skill per run, so the
@@ -105,9 +105,10 @@ def log_results(
 
     Each run gets a run_id (a precise timestamp, to the second) so that
     if the same label is run more than once on the same day, later
-    tools can reliably tell which rows belong to which run — grouping
-    by run_date alone isn't enough once there's more than one run per
-    day for a label.
+    tools can reliably tell which rows belong to which run. Pass an
+    explicit run_id to keep this in sync with log_postings() for the
+    same run — if not given, generates one and returns it so the
+    caller can reuse it.
 
     This is deliberately NOT the full canonical data model described in
     docs/future-platform-architecture.md — it's the small, cheap step
@@ -118,7 +119,8 @@ def log_results(
     file_exists = os.path.exists(log_path)
     now = datetime.now(timezone.utc)
     run_date = now.strftime("%Y-%m-%d")
-    run_id = now.strftime("%Y-%m-%dT%H:%M:%S")
+    if run_id is None:
+        run_id = now.strftime("%Y-%m-%dT%H:%M:%S")
 
     fieldnames = ["run_date", "run_id", "label", "total_postings", "skill", "count", "pct"]
     with open(log_path, "a", newline="", encoding="utf-8") as f:
@@ -136,6 +138,54 @@ def log_results(
                     "skill": skill,
                     "count": count,
                     "pct": pct,
+                }
+            )
+
+    return run_id
+
+
+def log_postings(
+    postings: list[dict],
+    label: str,
+    run_id: str,
+    log_path: str = "data/postings_index.csv",
+    max_rows: int = 30,
+) -> None:
+    """
+    Stores just enough about each posting to link a job seeker straight
+    to the real listing — title, company, location, URL, posted date.
+    Deliberately excludes the full description text, so this file stays
+    small and safe to commit to git (unlike data/raw/*.csv, which is
+    gitignored as disposable working data — this is the piece of that
+    data meant to survive and ship with the deployed dashboard).
+
+    Caps at max_rows postings per run to keep the file bounded — this
+    is for "here are some real listings to apply to", not a full
+    archive of every posting collected.
+    """
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    file_exists = os.path.exists(log_path)
+    run_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    fieldnames = ["run_date", "run_id", "label", "title", "company", "location", "url", "date_posted"]
+    with open(log_path, "a", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        if not file_exists:
+            writer.writeheader()
+        for posting in postings[:max_rows]:
+            url = posting.get("url", "").strip()
+            if not url:
+                continue  # no point linking a posting with no URL
+            writer.writerow(
+                {
+                    "run_date": run_date,
+                    "run_id": run_id,
+                    "label": label,
+                    "title": posting.get("title", ""),
+                    "company": posting.get("company", ""),
+                    "location": posting.get("location", ""),
+                    "url": url,
+                    "date_posted": posting.get("date_posted", ""),
                 }
             )
 
@@ -160,4 +210,12 @@ if __name__ == "__main__":
     # Derive a readable label from the input, e.g. "data/raw/data_analyst.csv"
     # -> "data_analyst", or the folder name for a whole-directory run.
     label = os.path.splitext(os.path.basename(arg.rstrip("/\\")))[0] or "all"
-    log_results(counts, total, label=label)
+    run_id = log_results(counts, total, label=label)
+
+    # Reload the postings (cheap — same small files) to log their links
+    # alongside the skill data, sharing the same run_id so the two logs
+    # stay in sync for this run.
+    all_postings = []
+    for path in paths:
+        all_postings.extend(load_postings(path))
+    log_postings(all_postings, label=label, run_id=run_id)

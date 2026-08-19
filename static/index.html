@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Africa Jobs Intel — Observed Skill Demand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <p class="eyebrow">Observed labour-market data — South Africa</p>
+    <h1>What the job market is<br>actually asking for</h1>
+    <p class="lede">Skill mentions counted directly from real job postings, role by role. Not a survey, not a forecast — a record of what employers wrote.</p>
+
+    <dl class="meta-ledger" id="meta-ledger" aria-live="polite">
+      <div class="meta-item"><dt>Roles tracked</dt><dd id="meta-roles">—</dd></div>
+      <div class="meta-item"><dt>Industries</dt><dd id="meta-industries">—</dd></div>
+      <div class="meta-item"><dt>Postings analyzed</dt><dd id="meta-postings">—</dd></div>
+      <div class="meta-item"><dt>Last updated</dt><dd id="meta-updated">—</dd></div>
+    </dl>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="panel snapshot-panel" aria-labelledby="snapshot-heading">
+    <h2 id="snapshot-heading">Market snapshot</h2>
+    <div class="snapshot-grid">
+      <div>
+        <p class="snapshot-subheading">Highest observed skill percentages</p>
+        <ol class="snapshot-list" id="snapshot-skills"></ol>
+      </div>
+      <div>
+        <p class="snapshot-subheading">Largest tracked samples</p>
+        <ol class="snapshot-list" id="snapshot-roles"></ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="explore-heading">
+    <div class="panel-head">
+      <h2 id="explore-heading">Explore a role</h2>
+      <div class="mode-toggle" role="group" aria-label="View mode">
+        <button type="button" class="mode-btn is-active" data-mode="single">Single role</button>
+        <button type="button" class="mode-btn" data-mode="compare">Compare roles</button>
+      </div>
+    </div>
+
+    <div id="role-groups" class="role-groups" aria-label="Roles by industry"></div>
+
+    <p class="compare-hint" id="compare-hint" hidden>Select 2–4 roles to compare. Only skills shared by more than one role are shown.</p>
+
+    <div id="single-view" class="result-view">
+      <div class="result-empty" id="single-empty">Pick a role above to see its top skills.</div>
+      <div id="single-content" hidden>
+        <div class="result-head">
+          <h3 id="single-role-name"></h3>
+          <span class="result-sub" id="single-role-sub"></span>
+        </div>
+        <ol class="skill-bars" id="skill-bars"></ol>
+
+        <div class="postings-block" id="postings-block" hidden>
+          <h4 class="postings-heading">Recent postings for this role</h4>
+          <ul class="postings-list" id="postings-list"></ul>
+        </div>
+        <p class="postings-empty" id="postings-empty" hidden>No linked postings on file for this role yet.</p>
+      </div>
+    </div>
+
+    <div id="compare-view" class="result-view" hidden>
+      <div class="result-empty" id="compare-empty">Select 2 or more roles above to compare.</div>
+      <div class="compare-summary" id="compare-summary" hidden></div>
+      <div class="heat-grid-wrap" id="heat-grid-wrap" hidden>
+        <table class="heat-grid" id="heat-grid">
+          <thead><tr id="heat-grid-head"></tr></thead>
+          <tbody id="heat-grid-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="search-heading">
+    <h2 id="search-heading">Search a skill</h2>
+    <p class="panel-note">Find which roles mention a given skill, and how often — e.g. "python", "excel", "audit".</p>
+    <input type="search" id="search-input" class="search-input" placeholder="Search skills across every role…" autocomplete="off">
+    <ul class="search-results" id="search-results"></ul>
+  </section>
+
+  <section class="panel" aria-labelledby="methodology-heading" id="methodology">
+    <h2 id="methodology-heading">About this data</h2>
+
+    <div class="methodology-grid">
+      <div class="method-block">
+        <h3 class="method-block-heading">Observation, not forecast</h3>
+        <p>Every number on this page is a count of what employers actually wrote in real job postings — not a survey, not a model, not a prediction. Three distinct kinds of statement appear across this site:</p>
+        <dl class="method-defs">
+          <div><dt>Observation</dt><dd>"42.7% of collected Data Analyst postings mentioned SQL." A direct count.</dd></div>
+          <div><dt>Interpretation</dt><dd>"SQL appears strongly associated with Data Analyst hiring." A reasonable reading of the observation, not a fact on its own.</dd></div>
+          <div><dt>Recommendation</dt><dd>Anything suggesting what a person might do about it. This site currently makes none — it shows evidence, not advice.</dd></div>
+        </dl>
+      </div>
+
+      <div class="method-block">
+        <h3 class="method-block-heading">How a skill percentage is calculated</h3>
+        <p>For each role, a batch of real job postings is collected from public sources. Each posting's title and description are checked against a taxonomy of skill keywords (e.g. "Power BI", "PowerBI", "power-bi" all map to one skill). A skill's percentage is the share of postings in that batch whose text matched at least one keyword for that skill — reported as a fraction (e.g. "64/150") alongside the percentage, so the underlying sample is never hidden behind a single number.</p>
+      </div>
+
+      <div class="method-block">
+        <h3 class="method-block-heading">Sample size labels</h3>
+        <p>Small samples can be misleading, so every role carries a plain-language label based on how many postings back it:</p>
+        <ul class="method-list">
+          <li><span class="sample-badge sample-badge--low">Limited observations</span> fewer than 20 postings</li>
+          <li><span class="sample-badge sample-badge--mid-low">Emerging signal</span> 20–49 postings</li>
+          <li><span class="sample-badge sample-badge--mid">Moderate evidence</span> 50–99 postings</li>
+          <li><span class="sample-badge sample-badge--high">Strong observed sample</span> 100+ postings</li>
+        </ul>
+        <p class="method-note">These are product-transparency labels, not formal statistical confidence intervals.</p>
+      </div>
+
+      <div class="method-block">
+        <h3 class="method-block-heading">Known limitations</h3>
+        <ul class="method-list method-list--plain">
+          <li>This dataset represents observed job postings and should not be interpreted as a complete census of the South African labour market.</li>
+          <li>Some sources return only a text snippet of each posting rather than the full description, which can under-count skills mentioned later in a full listing.</li>
+          <li>A skill's absence from a posting's text doesn't mean the role doesn't need it — only that this specific wording wasn't present.</li>
+          <li>Data has been collected at a single point in time per role so far — there isn't yet a history to show genuine week-over-week or month-over-month trends.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p><strong>Africa Jobs Intel</strong> — a personal, ongoing project tracking observed skill demand in the South African job market. Not affiliated with any job board or employer. See <code>docs/future-platform-architecture.md</code> in the project repository for where this could grow next.</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
